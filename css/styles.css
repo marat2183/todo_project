@@ -1,0 +1,135 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'DM Sans', sans-serif;
+}
+
+.content{
+    min-height: 100vh;
+    background-color: rgb(226,213,222);
+    padding: 200px 0;
+}
+
+.content__inner{
+    width: calc(100% - 20px);
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 25px;
+    background: #fff;
+    border-radius: 10px;
+}
+.header{
+    display: flex;
+    align-items: center;
+}
+
+.content__title{
+    font-size: 24px;
+    text-align: center;
+}
+.error{
+    display: none;
+    margin-top: 10px;
+    color: #FF0000;
+    font-size: 12px;
+    text-align: center;
+}
+.header__input{
+    border: none;
+    outline: none;
+    width: calc(100% - 25px);
+    height: 25px;
+    font-size: 15px;
+    border-bottom: 1px solid grey;
+}
+
+.header__add-btn{
+    margin-left: 10px;
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+}
+
+.task-list{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 15px;
+}
+
+
+
+.task{
+    margin-top: 5px;
+    background-color: #f4f6f7;
+    border-radius: 10px;
+    padding: 5px 10px;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.task:first-of-type{
+    margin-top: 0;
+}
+
+.task__name{
+    max-width: calc(100% - 70px);
+    margin-left: 15px;
+}
+
+.task__checkbox{
+    width: 25px;
+    height: 25px;
+    border: 1px solid grey;
+    border-radius: 50%;
+}
+
+.task__checkbox-icon{
+    position: relative;
+    top: 2px;
+    left: 1px;
+    fill: black;
+    opacity: 0;
+    transition: 0.4s ease-in-out;
+}
+
+.task__checkbox:hover .task__checkbox-icon{
+    opacity: 0.5;
+}
+
+.task__checkbox:active .task__checkbox-icon{
+    fill: #fff;
+}
+
+.task__checkbox--active{
+    background-color: #4ccb55;
+    border-color: #4ccb55;
+}
+
+.task__checkbox--active:hover .task__checkbox-icon{
+    opacity: 1;
+}
+
+.task__checkbox--active .task__checkbox-icon{
+    opacity: 1;
+    fill: #fff;
+}
+
+.task--completed .task__name{
+    text-decoration: line-through;
+}
+
+
+
+.task__delete-btn{
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    margin-left: auto;
+}
+/* .task__delete-btn:focus-visible{
+    transform: rotate(-180deg);
+    transition: 0.5s all;
+} */
