@@ -1,56 +1,55 @@
-const taskListBlock = document.querySelector('.task-list')
-
-
-const updateItemOnLocalStorage = (task) => {
+const addNewTask = name => {
     const date = new Date();
-    const taskName = task.querySelector('.task__name').textContent;
-    const taskData = JSON.parse(localStorage.getItem(taskName));
-    if (task.classList.contains('task--completed')){
-        taskData.status.completed = true;
-        taskData.status.time = date.toLocaleString("ru");
-        localStorage.setItem(taskName, JSON.stringify(taskData));
-        return
+    const taskObj = {
+        'name': name,
+        'completed': false,
+        'lastModTime': date.toLocaleString("ru")
+    };
+    const tasksList =  JSON.parse(localStorage.getItem("tasks")) || [];
+    tasksList.push(taskObj);
+    localStorage.setItem('tasks', JSON.stringify(tasksList));
+    return;
+}
+
+const removeTask = name => {
+    const tasksList =  JSON.parse(localStorage.getItem("tasks")) || [];
+    for (let i = 0; i < tasksList.length; i++){
+        if (tasksList[i].name === name){
+            tasksList.splice(i,1);
+            break;
+        }
     }
-    taskData.status.completed = false;
-    taskData.status.time = date.toLocaleString("ru");
-    localStorage.setItem(taskName, JSON.stringify(taskData));
-    return
+    localStorage.setItem('tasks', JSON.stringify(tasksList))
     
 }
 
-const addDeleteListenerForBtn = (task) => {
-    const taskDeleteBtn = task.querySelector('.task__delete-btn')
-    taskDeleteBtn.addEventListener('click', function(){
-        const task = this.closest('.task');
-        const taskName = task.querySelector('.task__name').textContent;
-        task.remove();
-        localStorage.removeItem(taskName)
-    });
+const toggleTaskStatus = name => {
+    const date = new Date();
+    const tasksList =  JSON.parse(localStorage.getItem("tasks"));
+    for (let i = 0; i < tasksList.length; i++){
+        if (tasksList[i].name === name){
+            if (tasksList[i].completed){
+                tasksList[i].completed = false;
+                tasksList[i].lastModTime = date.toLocaleString("ru");
+                localStorage.setItem('tasks', JSON.stringify(tasksList));
+                return;
+            }
+            tasksList[i].completed = true;
+            tasksList[i].lastModTime = date.toLocaleString("ru");
+            localStorage.setItem('tasks', JSON.stringify(tasksList));
+            return;
+        }
+    }
 }
 
-const addCheckboxListener = (task) => {
-    const checkbox = task.querySelector('.task__checkbox')
-    checkbox.addEventListener('click', function(){
-        checkbox.classList.toggle('task__checkbox--active');
-        const task = this.parentElement
-        task.classList.toggle('task--completed')
-        updateItemOnLocalStorage(task)
-    });
+
+
+const getTasks = () => {
+    const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+    return tasks
 }
 
-const createTaskNameSpan = (taskNameValue) => {
-    const taskNameSpan = document.createElement('span')
-    taskNameSpan.classList.add('task__name')
-    taskNameSpan.textContent = taskNameValue
-    return taskNameSpan
-}
-
-const createTaskDeleteIcon = () => {
-    const taskDeleteBtn = document.createElement('img')
-    taskDeleteBtn.classList.add('task__delete-btn')
-    taskDeleteBtn.setAttribute('src', './img/delete-icon.svg')
-    return taskDeleteBtn
-}
+// ==================================================================================
 
 
 const createSvgIcon = () => {
@@ -75,47 +74,76 @@ const createSvgIcon = () => {
     );
     iconSvg.append(iconPath);
     return iconSvg
-    
 }
-const createTaskCheckboxBlock = (completed) => {
-    const taskCheckboxBlock = document.createElement('div');
-    if (completed){
-        taskCheckboxBlock.classList.add('task__checkbox', 'task__checkbox--active');
+
+const createCheckBox = taskObj => {
+    const checkbox = document.createElement('div');
+    if (taskObj.completed){
+        checkbox.classList.add('task__checkbox', 'task__checkbox--active');
     }
     else{
-        taskCheckboxBlock.classList.add('task__checkbox');
+        checkbox.classList.add('task__checkbox');
     }
     const svgIcon = createSvgIcon();
-    taskCheckboxBlock.appendChild(svgIcon);
-    return taskCheckboxBlock
+    checkbox.appendChild(svgIcon);
+    checkbox.addEventListener('click', () => {
+        toggleTaskStatus(taskObj.name);
+        renderTasks();
+    });
+    return checkbox;
 }
 
-const createTaskBlock = (taskObj) => {
-    const task = document.createElement('div');
-    if (taskObj.status.completed){
-        task.classList.add('task', 'task--completed');
+const createTaskName = (taskName) => {
+    const taskNameBlock = document.createElement('span');
+    taskNameBlock.classList.add('task__name');
+    taskNameBlock.textContent = taskName;
+    return taskNameBlock;
+}
+
+const createCross = taskName => {
+    const cross = document.createElement('img');
+    cross.classList.add('task__delete-btn');
+    cross.setAttribute('src', './img/delete-icon.svg');
+    cross.addEventListener('click', () => {
+        removeTask(taskName);
+        renderTasks();
+    });
+    return cross;
+}
+
+const createTaskBlock = task => {
+    const taskBlock = document.createElement('div');
+    if (task.completed){
+        taskBlock.classList.add('task', 'task--completed');
     }
     else{
-        task.classList.add('task');
+        taskBlock.classList.add('task');
     }
-    const taskCheckBoxBlock = createTaskCheckboxBlock(taskObj.status.completed);
-    const taskSpan = createTaskNameSpan(taskObj.name);
-    const taskDeleteBtn = createTaskDeleteIcon();
-    task.append(taskCheckBoxBlock, taskSpan, taskDeleteBtn);
-    return task
+    const checkBox = createCheckBox(task);
+    const taskName = createTaskName(task.name);
+    const cross = createCross(task.name);
+    taskBlock.append(checkBox, taskName, cross);
+    return taskBlock;
 }
 
-const addDataToList = (taskObj) => {
-    const task = createTaskBlock(taskObj);
-    taskListBlock.appendChild(task);
-    addDeleteListenerForBtn(task);
-    addCheckboxListener(task)
-    return task
+const showInputError = (message) => {
+    const taskInput = document.querySelector('.header__input')
+    const errorSpan = document.querySelector('.error');
+    errorSpan.textContent = message;
+    errorSpan.style.display = 'block';
+    taskInput.style.borderColor = '#FF0000';
+    taskInput.addEventListener('keyup', () => {
+        errorSpan.removeAttribute('style');
+        taskInput.removeAttribute('style');
+    }, {"once": true});   
 }
 
-export {
-            addDataToList,
-            updateItemOnLocalStorage,
-            addCheckboxListener,
-            addDeleteListenerForBtn
-        }
+const renderTasks = () => {
+    const tasks = getTasks()
+    const taskBlocks = tasks.map((task) => createTaskBlock(task))
+    document.querySelector('.task-list').innerHTML = ''
+    document.querySelector('.task-list').append(...taskBlocks)
+}
+
+
+export {renderTasks, addNewTask, getTasks, showInputError}
