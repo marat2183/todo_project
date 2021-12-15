@@ -1,53 +1,55 @@
+const getTasksFromLocalStorage = () => {
+    const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+    return tasks
+}
+
+const setTasksToLocalStorage = (tasksList) => {
+    localStorage.setItem('tasks', JSON.stringify(tasksList));
+}
+
 const addNewTask = name => {
+    console.log(name);
     const date = new Date();
     const taskObj = {
         'name': name,
         'completed': false,
         'lastModTime': date.toLocaleString("ru")
     };
-    const tasksList =  JSON.parse(localStorage.getItem("tasks")) || [];
+    const tasksList =  getTasksFromLocalStorage();
     tasksList.push(taskObj);
-    localStorage.setItem('tasks', JSON.stringify(tasksList));
+    setTasksToLocalStorage(tasksList);
     return;
 }
 
 const removeTask = name => {
-    const tasksList =  JSON.parse(localStorage.getItem("tasks")) || [];
+    const tasksList =  getTasksFromLocalStorage();
     for (let i = 0; i < tasksList.length; i++){
         if (tasksList[i].name === name){
             tasksList.splice(i,1);
             break;
         }
     }
-    localStorage.setItem('tasks', JSON.stringify(tasksList))
-    
+    setTasksToLocalStorage(tasksList)
 }
 
 const toggleTaskStatus = name => {
     const date = new Date();
-    const tasksList =  JSON.parse(localStorage.getItem("tasks"));
-    for (let i = 0; i < tasksList.length; i++){
-        if (tasksList[i].name === name){
-            if (tasksList[i].completed){
-                tasksList[i].completed = false;
-                tasksList[i].lastModTime = date.toLocaleString("ru");
-                localStorage.setItem('tasks', JSON.stringify(tasksList));
-                return;
-            }
-            tasksList[i].completed = true;
-            tasksList[i].lastModTime = date.toLocaleString("ru");
-            localStorage.setItem('tasks', JSON.stringify(tasksList));
-            return;
+    const tasksList =  getTasksFromLocalStorage();
+    tasksList.some(taskObj => {
+        if (taskObj.name === name && taskObj.completed) {
+            taskObj.completed = false;
+            taskObj.lastModTime = date.toLocaleString("ru");
+            return true
         }
-    }
+        else if (taskObj.name === name && !taskObj.completed) {
+            taskObj.completed = true;
+            taskObj.lastModTime = date.toLocaleString("ru");
+            return true
+        }
+    });
+    setTasksToLocalStorage(tasksList);
 }
 
-
-
-const getTasks = () => {
-    const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-    return tasks
-}
 
 // ==================================================================================
 
@@ -139,11 +141,11 @@ const showInputError = (message) => {
 }
 
 const renderTasks = () => {
-    const tasks = getTasks()
-    const taskBlocks = tasks.map((task) => createTaskBlock(task))
-    document.querySelector('.task-list').innerHTML = ''
-    document.querySelector('.task-list').append(...taskBlocks)
+    const tasks = getTasksFromLocalStorage();
+    const taskBlocks = tasks.map((task) => createTaskBlock(task));
+    document.querySelector('.task-list').innerHTML = '';
+    document.querySelector('.task-list').append(...taskBlocks);
 }
 
 
-export {renderTasks, addNewTask, getTasks, showInputError}
+export {renderTasks, addNewTask, getTasksFromLocalStorage, showInputError}

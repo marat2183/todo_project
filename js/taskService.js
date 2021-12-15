@@ -1,4 +1,4 @@
-import { renderTasks, addNewTask, getTasks, showInputError } from "./taskController.js"
+import { renderTasks, addNewTask, getTasksFromLocalStorage, showInputError } from "./taskController.js"
 
 const taskAddBtn = document.querySelector('.header__add-btn')
 const taskInput = document.querySelector('.header__input')
@@ -8,7 +8,7 @@ const taskInput = document.querySelector('.header__input')
 renderTasks();
 
 taskAddBtn.addEventListener('click', () => {
-    const tasks = getTasks();
+    const tasks = getTasksFromLocalStorage();
     const userInput = taskInput.value.trim();
     const filteredList = tasks.filter(task => task.name === userInput);
     if (!userInput){
@@ -18,7 +18,7 @@ taskAddBtn.addEventListener('click', () => {
         showInputError('Task with such name already in your task list!');
     }
     else{
-        addNewTask(taskInput.value.trim());
+        addNewTask(userInput);
         renderTasks();
         taskInput.value = '';
     }
