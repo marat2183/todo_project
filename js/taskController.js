@@ -8,12 +8,10 @@ const setTasksToLocalStorage = (tasksList) => {
 }
 
 const addNewTask = name => {
-    console.log(name);
-    const date = new Date();
     const taskObj = {
         'name': name,
         'completed': false,
-        'lastModTime': date.toLocaleString("ru")
+        'lastModTime': Date.now()
     };
     const tasksList =  getTasksFromLocalStorage();
     tasksList.push(taskObj);
@@ -33,26 +31,32 @@ const removeTask = name => {
 }
 
 const toggleTaskStatus = name => {
-    const date = new Date();
     const tasksList =  getTasksFromLocalStorage();
     tasksList.some(taskObj => {
         if (taskObj.name === name && taskObj.completed) {
             taskObj.completed = false;
-            taskObj.lastModTime = date.toLocaleString("ru");
+            taskObj.lastModTime = Date.now();
             return true
         }
         else if (taskObj.name === name && !taskObj.completed) {
             taskObj.completed = true;
-            taskObj.lastModTime = date.toLocaleString("ru");
+            taskObj.lastModTime = Date.now();
             return true
         }
     });
     setTasksToLocalStorage(tasksList);
 }
 
-
-// ==================================================================================
-
+const getNumOfCompletedTasksPerWeek = tasks =>{
+    const currentDateUTC = Date.now();
+    const weekOnUTC = 604800000;
+    const filteredTasks = tasks.filter(task => {
+       if (task.completed && task.lastModTime > (currentDateUTC - weekOnUTC)){
+           return true;
+       }
+    });
+    return filteredTasks.length;
+}
 
 const createSvgIcon = () => {
     const iconSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -90,7 +94,7 @@ const createCheckBox = taskObj => {
     checkbox.appendChild(svgIcon);
     checkbox.addEventListener('click', () => {
         toggleTaskStatus(taskObj.name);
-        renderTasks();
+        renderTasksSection();
     });
     return checkbox;
 }
@@ -108,7 +112,7 @@ const createCross = taskName => {
     cross.setAttribute('src', './img/delete-icon.svg');
     cross.addEventListener('click', () => {
         removeTask(taskName);
-        renderTasks();
+        renderTasksSection();
     });
     return cross;
 }
@@ -140,12 +144,14 @@ const showInputError = (message) => {
     }, {"once": true});   
 }
 
-const renderTasks = () => {
+const renderTasksSection = () => {
     const tasks = getTasksFromLocalStorage();
+    const numOfCompletedTasksPerWeek = getNumOfCompletedTasksPerWeek(tasks);
     const taskBlocks = tasks.map((task) => createTaskBlock(task));
     document.querySelector('.task-list').innerHTML = '';
+    document.querySelector('.statistics-item__value--week').textContent = numOfCompletedTasksPerWeek;
     document.querySelector('.task-list').append(...taskBlocks);
 }
 
 
-export {renderTasks, addNewTask, getTasksFromLocalStorage, showInputError}
+export {renderTasksSection, addNewTask, getTasksFromLocalStorage, showInputError}

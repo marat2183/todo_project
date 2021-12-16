@@ -28,13 +28,7 @@
     font-size: 24px;
     text-align: center;
 }
-.error{
-    display: none;
-    margin-top: 10px;
-    color: #FF0000;
-    font-size: 12px;
-    text-align: center;
-}
+
 .header__input{
     border: none;
     outline: none;
@@ -51,14 +45,28 @@
     cursor: pointer;
 }
 
+.error{
+    display: none;
+    margin-top: 10px;
+    color: #FF0000;
+    font-size: 12px;
+    text-align: center;
+}
+
+.statistics-item__title{
+    margin-top: 15px;
+    font-size: 15px;
+    font-weight: 400;
+}
+
 .task-list{
     display: flex;
     flex-direction: column;
     align-items: center;
     margin-top: 15px;
+    max-height: 450px;
+    overflow-y: auto;
 }
-
-
 
 .task{
     margin-top: 5px;
@@ -121,11 +129,18 @@
     text-decoration: line-through;
 }
 
-
-
 .task__delete-btn{
     width: 20px;
     height: 20px;
     cursor: pointer;
     margin-left: auto;
+}
+
+@media(min-width: 1024px){
+    .content{
+        padding: 200px 0;
+    }
+    .task-list{
+        max-height: 700px;
+    }
 }

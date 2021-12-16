@@ -1,11 +1,11 @@
-import { renderTasks, addNewTask, getTasksFromLocalStorage, showInputError } from "./taskController.js"
+import { renderTasksSection, addNewTask, getTasksFromLocalStorage, showInputError } from "./taskController.js"
 
 const taskAddBtn = document.querySelector('.header__add-btn')
 const taskInput = document.querySelector('.header__input')
 
 
 
-renderTasks();
+renderTasksSection();
 
 taskAddBtn.addEventListener('click', () => {
     const tasks = getTasksFromLocalStorage();
@@ -19,7 +19,7 @@ taskAddBtn.addEventListener('click', () => {
     }
     else{
         addNewTask(userInput);
-        renderTasks();
+        renderTasksSection();
         taskInput.value = '';
     }
 })
