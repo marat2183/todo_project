@@ -27,14 +27,15 @@ const removeTask = name => {
 
 const toggleTaskStatus = name => {
     const tasksList =  getTasks();
-    tasksList.some(taskObj => {
+    const changedTasksList = tasksList.map(taskObj => {
         if (taskObj.name === name) {
             taskObj.completed = !taskObj.completed;
             taskObj.lastModTime = Date.now();
-            return true
+            return taskObj;
         }
+        return taskObj;
     });
-    saveTasks(tasksList);
+    saveTasks(changedTasksList);
 }
 
 const getNumOfCompletedTasksPerWeek = tasks =>{
