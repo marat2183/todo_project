@@ -1,9 +1,9 @@
-const getTasksFromLocalStorage = () => {
+const getTasks = () => {
     const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
     return tasks
 }
 
-const setTasksToLocalStorage = (tasksList) => {
+const saveTasks = (tasksList) => {
     localStorage.setItem('tasks', JSON.stringify(tasksList));
 }
 
@@ -13,38 +13,28 @@ const addNewTask = name => {
         'completed': false,
         'lastModTime': Date.now()
     };
-    const tasksList =  getTasksFromLocalStorage();
+    const tasksList =  getTasks();
     tasksList.push(taskObj);
-    setTasksToLocalStorage(tasksList);
+    saveTasks(tasksList);
     return;
 }
 
 const removeTask = name => {
-    const tasksList =  getTasksFromLocalStorage();
-    for (let i = 0; i < tasksList.length; i++){
-        if (tasksList[i].name === name){
-            tasksList.splice(i,1);
-            break;
-        }
-    }
-    setTasksToLocalStorage(tasksList)
+    const tasksList =  getTasks();
+    const changedTasksList = tasksList.filter(task => task.name !== name)
+    saveTasks(changedTasksList)
 }
 
 const toggleTaskStatus = name => {
-    const tasksList =  getTasksFromLocalStorage();
+    const tasksList =  getTasks();
     tasksList.some(taskObj => {
-        if (taskObj.name === name && taskObj.completed) {
-            taskObj.completed = false;
-            taskObj.lastModTime = Date.now();
-            return true
-        }
-        else if (taskObj.name === name && !taskObj.completed) {
-            taskObj.completed = true;
+        if (taskObj.name === name) {
+            taskObj.completed = !taskObj.completed;
             taskObj.lastModTime = Date.now();
             return true
         }
     });
-    setTasksToLocalStorage(tasksList);
+    saveTasks(tasksList);
 }
 
 const getNumOfCompletedTasksPerWeek = tasks =>{
@@ -145,7 +135,7 @@ const showInputError = (message) => {
 }
 
 const renderTasksSection = () => {
-    const tasks = getTasksFromLocalStorage();
+    const tasks = getTasks();
     const numOfCompletedTasksPerWeek = getNumOfCompletedTasksPerWeek(tasks);
     const taskBlocks = tasks.map((task) => createTaskBlock(task));
     document.querySelector('.task-list').innerHTML = '';
@@ -154,4 +144,4 @@ const renderTasksSection = () => {
 }
 
 
-export {renderTasksSection, addNewTask, getTasksFromLocalStorage, showInputError}
+export {renderTasksSection, addNewTask, getTasks, showInputError}
