@@ -1,53 +1,22 @@
-const getTasks = () => {
-    const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-    return tasks
-}
+import taskService from '../services/taskService.js'
 
-const saveTasks = (tasksList) => {
-    localStorage.setItem('tasks', JSON.stringify(tasksList));
-}
 
-const addNewTask = name => {
-    const taskObj = {
-        'name': name,
-        'completed': false,
-        'lastModTime': Date.now()
-    };
-    const tasksList =  getTasks();
-    tasksList.push(taskObj);
-    saveTasks(tasksList);
-    return;
-}
+const taskAddBtn = document.querySelector('.header__add-btn')
+const taskInput = document.querySelector('.header__input')
 
-const removeTask = name => {
-    const tasksList =  getTasks();
-    const changedTasksList = tasksList.filter(task => task.name !== name)
-    saveTasks(changedTasksList)
-}
 
-const toggleTaskStatus = name => {
-    const tasksList =  getTasks();
-    const changedTasksList = tasksList.map(taskObj => {
-        if (taskObj.name === name) {
-            taskObj.completed = !taskObj.completed;
-            taskObj.lastModTime = Date.now();
-            return taskObj;
-        }
-        return taskObj;
-    });
-    saveTasks(changedTasksList);
-}
+taskAddBtn.addEventListener('click', () => {
+    const userInput = taskInput.value.trim();
+    try{
+        taskService.addTask(userInput);
+        taskInput.value = '';
+    }
+    catch(error){
+        showInputError(error.message);
+    }
+    renderTasksSection()
+})
 
-const getNumOfCompletedTasksPerWeek = tasks =>{
-    const currentDateUTC = Date.now();
-    const weekOnUTC = 604800000;
-    const filteredTasks = tasks.filter(task => {
-       if (task.completed && task.lastModTime > (currentDateUTC - weekOnUTC)){
-           return true;
-       }
-    });
-    return filteredTasks.length;
-}
 
 const createSvgIcon = () => {
     const iconSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -84,7 +53,7 @@ const createCheckBox = taskObj => {
     const svgIcon = createSvgIcon();
     checkbox.appendChild(svgIcon);
     checkbox.addEventListener('click', () => {
-        toggleTaskStatus(taskObj.name);
+        taskService.toggleTaskStatus(taskObj.name);
         renderTasksSection();
     });
     return checkbox;
@@ -102,7 +71,7 @@ const createCross = taskName => {
     cross.classList.add('task__delete-btn');
     cross.setAttribute('src', './img/delete-icon.svg');
     cross.addEventListener('click', () => {
-        removeTask(taskName);
+        taskService.removeTask(taskName);
         renderTasksSection();
     });
     return cross;
@@ -136,13 +105,12 @@ const showInputError = (message) => {
 }
 
 const renderTasksSection = () => {
-    const tasks = getTasks();
-    const numOfCompletedTasksPerWeek = getNumOfCompletedTasksPerWeek(tasks);
+    const tasks = taskService.getTasks();
+    const numOfCompletedTasksPerWeek = taskService.getNumOfCompletedTasksPerWeek(tasks);
     const taskBlocks = tasks.map((task) => createTaskBlock(task));
     document.querySelector('.task-list').innerHTML = '';
     document.querySelector('.statistics-item__value--week').textContent = numOfCompletedTasksPerWeek;
     document.querySelector('.task-list').append(...taskBlocks);
 }
 
-
-export {renderTasksSection, addNewTask, getTasks, showInputError}
+renderTasksSection();
