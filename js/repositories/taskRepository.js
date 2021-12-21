@@ -1,45 +1,40 @@
+const repository = class  {
+    save = (tasksList) => localStorage.setItem('tasks', JSON.stringify(tasksList));
 
-const save = (tasksList) => localStorage.setItem('tasks', JSON.stringify(tasksList));
+    getList = () => JSON.parse(localStorage.getItem('tasks')) || [];
 
-const create = (task) => {
-    task.lastModTime = Date.now()
-    const tasks =  getList();
-    save([...tasks, task]);
-}
+    get = (taskName) => {
+        const tasks = this.getList()
+        const filteredList = tasks.filter(currentTask => currentTask.name === taskName)
+        return filteredList ? filteredList[0]: undefined;
+    };
 
-const getList = () => JSON.parse(localStorage.getItem('tasks')) || [];
+    create = (task) => {
+        task.lastModTime = Date.now()
+        const tasks =  this.getList();
+        this.save([...tasks, task]);
+    };
+
+    update = task => {
+        const tasks =  this.getList();
+        const changedTasksList = tasks.map(currentTask => {
+            if (currentTask.name !== task.name) {
+                return currentTask;
+            }
+            task.lastModTime = Date.now();
+            return task
+        });
+        this.save(changedTasksList);
+    }
+
+    delete = (taskName) => {
+        const tasksList =  this.getList();
+        const changedTasksList = tasksList.filter(task => task.name !== taskName)
+        this.save(changedTasksList)
+    }
 
 
-const get = (taskName) => {
-    const tasks = getList()
-    const filteredList = tasks.filter(currentTask => currentTask.name === taskName)
-    return filteredList ? filteredList[0]: undefined; 
-}
 
-const update = task => {
-    const tasks =  getList();
-    const changedTasksList = tasks.map(currentTask => {
-        if (currentTask.name !== task.name) {
-            return currentTask;
-        }
-        task.lastModTime = Date.now();
-        return task
-    });
-    save(changedTasksList);
-}
-
-const _delete = (taskName) => {
-    const tasksList =  getList();
-    const changedTasksList = tasksList.filter(task => task.name !== taskName)
-    save(changedTasksList)
-}
-
-const repository = {
-    create,
-    getList,
-    get,
-    update,
-    delete: _delete,
 }
 
 

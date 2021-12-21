@@ -1,53 +1,53 @@
-import taskRepository from '../repositories/taskRepository.js'
+import repository from '../repositories/taskRepository.js'
 
-const getList = () => taskRepository.getList();
+const service = class  {
+    constructor (){
+        this.taskRepository = new repository;
+    }
 
-const get = (taskName) => taskRepository.get(taskName);
+    getList = () => this.taskRepository.getList();
 
-const create = (userInput, completed = false) => {
-    if (!userInput){
-        throw new Error ('Your task name is empty!')
+    get = (taskName) => this.taskRepository.get(taskName);
+
+    create = (userInput, completed = false) => {
+        if (!userInput){
+            throw new Error ('Your task name is empty!')
+        }
+        const task = this.get(userInput)
+        if (task){
+            throw new Error ('Task with such name already in your task list!')
+        }
+        const newTask = {
+            name: userInput,
+            completed,
+        }
+        this.taskRepository.create(newTask);
     }
-    const task = get(userInput)
-    if (task){
-        throw new Error ('Task with such name already in your task list!')
+
+    toggleStatus = (taskObj) => {
+        const task = this.get(taskObj.name);
+        if (!task){
+            throw new Error ('Task doesn\'t exist')
+        }
+        taskObj.completed = !taskObj.completed
+        this.taskRepository.update(taskObj);
     }
-    const newTask = {
-        name: userInput,
-        completed,
+    
+    delete = (taskName) => this.taskRepository.delete(taskName);
+
+    getNumOfCompletedTasksPerWeek = tasks => {
+        const currentDateUTC = Date.now();
+        const weekOnUTC = 604800000;
+        const filteredTasks = tasks.filter(task => {
+           if (task.completed && task.lastModTime > (currentDateUTC - weekOnUTC)){
+               return true;
+           }
+        });
+        return filteredTasks.length;
     }
-    taskRepository.create(newTask);
 }
 
-const toggleStatus = (taskObj) => {
-    const task = get(taskObj.name);
-    if (!task){
-        throw new Error ('Task doesn\'t exist')
-    }
-    taskObj.completed = !taskObj.completed
-    taskRepository.update(taskObj);
-}
-
-const _delete = (taskName) => taskRepository.delete(taskName);
-
-const getNumOfCompletedTasksPerWeek = tasks =>{
-    const currentDateUTC = Date.now();
-    const weekOnUTC = 604800000;
-    const filteredTasks = tasks.filter(task => {
-       if (task.completed && task.lastModTime > (currentDateUTC - weekOnUTC)){
-           return true;
-       }
-    });
-    return filteredTasks.length;
-}
-
-const service = {
-    create,
-    getList,
-    toggleStatus,
-    delete: _delete,
-    getNumOfCompletedTasksPerWeek
-}
+const taskService = new service()
 
 
 export default service
