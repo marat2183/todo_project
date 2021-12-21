@@ -1,48 +1,45 @@
-const getTasks = () => {
-    const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-    return tasks
+
+const save = (tasksList) => localStorage.setItem('tasks', JSON.stringify(tasksList));
+
+const create = (task) => {
+    task.lastModTime = Date.now()
+    const tasks =  getList();
+    save([...tasks, task]);
 }
 
-const saveTasks = (tasksList) => {
-    localStorage.setItem('tasks', JSON.stringify(tasksList));
+const getList = () => JSON.parse(localStorage.getItem('tasks')) || [];
+
+
+const get = (taskName) => {
+    const tasks = getList()
+    const filteredList = tasks.filter(currentTask => currentTask.name === taskName)
+    return filteredList ? filteredList[0]: undefined; 
 }
 
-const createTask = (taskName) => {
-    const taskObj = {
-        'name': taskName,
-        'completed': false,
-        'lastModTime': Date.now()
-    };
-    const tasksList =  getTasks();
-    tasksList.push(taskObj);
-    saveTasks(tasksList);
-}
-
-const updateTask = taskName => {
-    const tasksList =  getTasks();
-    const changedTasksList = tasksList.map(taskObj => {
-        if (taskObj.name === taskName) {
-            taskObj.completed = !taskObj.completed;
-            taskObj.lastModTime = Date.now();
-            return taskObj;
+const update = task => {
+    const tasks =  getList();
+    const changedTasksList = tasks.map(currentTask => {
+        if (currentTask.name !== task.name) {
+            return currentTask;
         }
-        return taskObj;
+        task.lastModTime = Date.now();
+        return task
     });
-    saveTasks(changedTasksList);
+    save(changedTasksList);
 }
 
-const deleteTask = (taskName) => {
-    const tasksList =  getTasks();
+const _delete = (taskName) => {
+    const tasksList =  getList();
     const changedTasksList = tasksList.filter(task => task.name !== taskName)
-    saveTasks(changedTasksList)
+    save(changedTasksList)
 }
 
 const repository = {
-    getTasks,
-    saveTasks,
-    deleteTask,
-    createTask,
-    updateTask
+    create,
+    getList,
+    get,
+    update,
+    delete: _delete,
 }
 
 

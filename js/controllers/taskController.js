@@ -8,7 +8,7 @@ const taskInput = document.querySelector('.header__input')
 taskAddBtn.addEventListener('click', () => {
     const userInput = taskInput.value.trim();
     try{
-        taskService.addTask(userInput);
+        taskService.create(userInput);
         taskInput.value = '';
     }
     catch(error){
@@ -53,7 +53,12 @@ const createCheckBox = taskObj => {
     const svgIcon = createSvgIcon();
     checkbox.appendChild(svgIcon);
     checkbox.addEventListener('click', () => {
-        taskService.toggleTaskStatus(taskObj.name);
+        try{
+            taskService.toggleStatus(taskObj);
+        }
+        catch(error){
+            showInputError(error.message)
+        }
         renderTasksSection();
     });
     return checkbox;
@@ -71,7 +76,7 @@ const createCross = taskName => {
     cross.classList.add('task__delete-btn');
     cross.setAttribute('src', './img/delete-icon.svg');
     cross.addEventListener('click', () => {
-        taskService.removeTask(taskName);
+        taskService.delete(taskName);
         renderTasksSection();
     });
     return cross;
@@ -105,7 +110,7 @@ const showInputError = (message) => {
 }
 
 const renderTasksSection = () => {
-    const tasks = taskService.getTasks();
+    const tasks = taskService.getList();
     const numOfCompletedTasksPerWeek = taskService.getNumOfCompletedTasksPerWeek(tasks);
     const taskBlocks = tasks.map((task) => createTaskBlock(task));
     document.querySelector('.task-list').innerHTML = '';

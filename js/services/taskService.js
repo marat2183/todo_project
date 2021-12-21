@@ -1,31 +1,34 @@
 import taskRepository from '../repositories/taskRepository.js'
 
+const getList = () => taskRepository.getList();
 
-const getTasks = () => {
-    const tasks = taskRepository.getTasks();
-    return tasks;
-}
+const get = (taskName) => taskRepository.get(taskName);
 
-const addTask = (userInput) => {
-    const tasks = getTasks();
-    const filteredList = tasks.filter(task => task.name === userInput);
+const create = (userInput, completed = false) => {
     if (!userInput){
         throw new Error ('Your task name is empty!')
     }
-    else if (filteredList.length > 0){
+    const task = get(userInput)
+    if (task){
         throw new Error ('Task with such name already in your task list!')
     }
-    taskRepository.createTask(userInput);
+    const newTask = {
+        name: userInput,
+        completed,
+    }
+    taskRepository.create(newTask);
 }
 
-const toggleTaskStatus = (taskName) => {
-    taskRepository.updateTask(taskName);
+const toggleStatus = (taskObj) => {
+    const task = get(taskObj.name);
+    if (!task){
+        throw new Error ('Task doesn\'t exist')
+    }
+    taskObj.completed = !taskObj.completed
+    taskRepository.update(taskObj);
 }
 
-const removeTask = (taskName) => {
-    taskRepository.deleteTask(taskName);
-}
-
+const _delete = (taskName) => taskRepository.delete(taskName);
 
 const getNumOfCompletedTasksPerWeek = tasks =>{
     const currentDateUTC = Date.now();
@@ -39,10 +42,10 @@ const getNumOfCompletedTasksPerWeek = tasks =>{
 }
 
 const service = {
-    addTask,
-    toggleTaskStatus,
-    removeTask,
-    getTasks,
+    create,
+    getList,
+    toggleStatus,
+    delete: _delete,
     getNumOfCompletedTasksPerWeek
 }
 
